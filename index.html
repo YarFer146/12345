@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Признание в любви</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffd1dc 0%, #e0f7fa 100%);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #5d4037;
+            text-align: center;
+            position: relative;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s ease-in-out, visibility 0.8s;
+            z-index: 1;
+        }
+
+        .screen.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+
+        .title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 30px;
+            color: #7b1fa2;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 1.8rem;
+            margin-bottom: 40px;
+            font-weight: 600;
+            max-width: 90%;
+            color: #5d4037;
+        }
+
+        .text {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            line-height: 1.5;
+            max-width: 90%;
+            color: #5d4037;
+        }
+
+        .heart-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            margin: 30px 0;
+            transition: transform 0.3s ease;
+            outline: none;
+        }
+
+        .heart-btn:active {
+            transform: scale(0.95);
+        }
+
+        .heart-btn img {
+            width: 120px;
+            height: auto;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+        }
+
+        .paw-btn {
+            background: #f48fb1;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            outline: none;
+            margin-top: 20px;
+            position: relative;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            animation: pulse 2s infinite;
+        }
+
+        .paw-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+            background: #e5739f;
+        }
+
+        .paw-btn:active {
+            transform: translateY(1px) scale(0.95);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .paw-btn::after {
+            content: '🐾';
+            font-size: 5rem;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .game-container {
+            width: 100%;
+            height: 70%;
+            max-height: 500px;
+            position: relative;
+            background: #b2ebf2;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            border: 2px solid #80deea;
+        }
+
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .score-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #e91e63;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 5rem;
+            color: #e91e63;
+            z-index: 15;
+            opacity: 0;
+            transform: scale(0);
+        }
+
+        .final-heart {
+            font-size: 8rem;
+            color: #e91e63;
+            margin: 30px 0;
+            animation: heartbeat 1.2s infinite;
+            z-index: 15;
+        }
+
+        .yes-btn {
+            background: #ce93d8;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 60px;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            outline: none;
+            margin-top: 30px;
+            position: relative;
+            z-index: 20;
+        }
+
+        .yes-btn:hover {
+            background: #ba68c8;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .next-btn {
+            padding: 20px 70px;
+            font-size: 2.2rem;
+            z-index: 25;
+        }
+
+        .firework {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 100;
+        }
+
+        .heart-particle {
+            position: absolute;
+            font-size: 2rem;
+            color: #e91e63;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 100;
+        }
+
+        .btn-hint {
+            position: absolute;
+            bottom: 20px;
+            font-size: 1rem;
+            color: #7b1fa2;
+            opacity: 0.7;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes flyToHeart {
+            0% { transform: translate(var(--startX), var(--startY)) scale(1); }
+            100% { transform: translate(0, 0) scale(0.3); opacity: 0; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.7; }
+        }
+
+        @media (max-width: 500px) {
+            .title {
+                font-size: 2.2rem;
+            }
+            .subtitle {
+                font-size: 1.5rem;
+            }
+            .text {
+                font-size: 1.3rem;
+            }
+            .next-btn {
+                padding: 18px 60px;
+                font-size: 2rem;
+            }
+            .paw-btn {
+                width: 100px;
+                height: 100px;
+            }
+            .paw-btn::after {
+                font-size: 4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Экран 1: Приветствие -->
+        <div class="screen active" id="screen1">
+            <h1 class="title">Привет!</h1>
+            <p class="subtitle">Надеюсь, тебе понравился букет :)</p>
+            <button class="paw-btn" id="pawBtn"></button>
+        </div>
+
+        <!-- Экран 2: Игра Flappy Bird -->
+        <div class="screen" id="screen2">
+            <p class="text">Набери 10 очков, чтобы пройти игру</p>
+            <div class="score-display" id="scoreDisplay">0</div>
+            <div class="game-container">
+                <canvas id="gameCanvas"></canvas>
+            </div>
+            <div class="heart" id="heart">❤️</div>
+        </div>
+
+        <!-- Экран 3: Вопрос -->
+        <div class="screen" id="screen3">
+            <h1>Умничка!</h1>
+            <p class="text">За то время, пока мы с тобой общаемся, ты стала для меня самым дорогим и близким человеком. И я бы хотел сказать, что очень, очень сильно тебя люблю ❤️</p>
+            <div class="heart final-heart">❤️</div>
+            <button class="yes-btn next-btn" id="nextBtn">Далее...</button>
+        </div>
+
+        <!-- Экран 4: Признание -->
+        <div class="screen" id="screen4">
+            <h1 class="title">Ты станешь моей девушкой?</h1>
+            <button class="yes-btn" id="yesBtn">Да!</button>
+        </div>
+    </div>
+
+    <script>
+        // Управление экранами
+        const screens = document.querySelectorAll('.screen');
+        let currentScreen = 0;
+        let flyingBirdElement = null;
+
+        function showScreen(index) {
+            // Удаляем летящую птичку, если она существует
+            if (flyingBirdElement) {
+                document.body.removeChild(flyingBirdElement);
+                flyingBirdElement = null;
+            }
+            
+            screens.forEach((screen, i) => {
+                if (i === index) {
+                    screen.classList.add('active');
+                } else {
+                    screen.classList.remove('active');
+                }
+            });
+            currentScreen = index;
+        }
+
+        // Переход к следующему экрану
+        document.getElementById('pawBtn').addEventListener('click', () => {
+            showScreen(1);
+            setTimeout(startGame, 500);
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            showScreen(3);
+        });
+
+        // Игра Flappy Bird
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const heart = document.getElementById('heart');
+
+        // Размеры canvas
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+
+        // Игровые переменные
+        let bird = {
+            x: 50,
+            y: 150,
+            radius: 15,
+            velocity: 0,
+            gravity: 0.1,
+            jump: -3,
+            color: '#fff9c4'
+        };
+
+        let pipes = [];
+        let score = 0;
+        let gameRunning = false;
+        let frameCount = 0;
+        let pipeFrequency = 100;
+
+        // Инициализация игры
+        function startGame() {
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            bird = {
+                x: 50,
+                y: canvas.height / 2,
+                radius: Math.max(15, canvas.width * 0.03),
+                velocity: 0,
+                gravity: 0.1,
+                jump: -3,
+                color: '#fff9c4'
+            };
+            
+            pipes = [];
+            score = 0;
+            gameRunning = true;
+            frameCount = 0;
+            pipeFrequency = 100;
+            updateScore();
+            
+            // Начать игровой цикл
+            gameLoop();
+        }
+
+        // Обработка прыжка
+        canvas.addEventListener('click', () => {
+            if (gameRunning) {
+                bird.velocity = bird.jump;
+            }
+        });
+
+        // Проверка столкновений
+        function checkCollision(pipe) {
+            // Проверка столкновения с верхней трубой
+            if (bird.x + bird.radius > pipe.x && 
+                bird.x - bird.radius < pipe.x + pipe.width && 
+                bird.y - bird.radius < pipe.height) {
+                return true;
+            }
+            
+            // Проверка столкновения с нижней трубой
+            if (bird.x + bird.radius > pipe.x && 
+                bird.x - bird.radius < pipe.x + pipe.width && 
+                bird.y + bird.radius > pipe.height + pipe.gap) {
+                return true;
+            }
+            
+            return false;
+        }
+
+        // Игровой цикл
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            // Очистка экрана
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Обновление птицы
+            bird.velocity += bird.gravity;
+            bird.y += bird.velocity;
+            
+            // Проверка столкновения с землей и потолком
+            if (bird.y + bird.radius > canvas.height || bird.y - bird.radius < 0) {
+                bird.y = Math.max(bird.radius, Math.min(canvas.height - bird.radius, bird.y));
+            }
+            
+            // Генерация труб
+            frameCount++;
+            if (frameCount % pipeFrequency === 0) {
+                const gap = 180;
+                const minHeight = 60;
+                const maxHeight = canvas.height - gap - minHeight;
+                const height = Math.floor(Math.random() * (maxHeight - minHeight)) + minHeight;
+                
+                pipes.push({
+                    x: canvas.width,
+                    y: 0,
+                    width: 50,
+                    height: height,
+                    gap: gap,
+                    passed: false
+                });
+            }
+            
+            // Обновление и отрисовка труб
+            for (let i = pipes.length - 1; i >= 0; i--) {
+                const pipe = pipes[i];
+                pipe.x -= 1.5;
+                
+                // Проверка столкновения
+                if (checkCollision(pipe)) {
+                    // При столкновении сбрасываем счет
+                    score = 0;
+                    updateScore();
+                    
+                    // Сбрасываем позицию птицы
+                    bird.y = canvas.height / 2;
+                    bird.velocity = 0;
+                    
+                    // Очищаем трубы
+                    pipes = [];
+                    frameCount = 0;
+                    break;
+                }
+                
+                // Проверка прохождения трубы
+                if (!pipe.passed && pipe.x + pipe.width < bird.x) {
+                    pipe.passed = true;
+                    score++;
+                    updateScore();
+                    
+                    // Проверка на победу
+                    if (score >= 10) {
+                        winGame();
+                        return;
+                    }
+                }
+                
+                // Отрисовка верхней трубы
+                ctx.fillStyle = '#a5d6a7';
+                ctx.fillRect(pipe.x, pipe.y, pipe.width, pipe.height);
+                
+                // Отрисовка нижней трубы
+                ctx.fillRect(pipe.x, pipe.height + pipe.gap, pipe.width, canvas.height - pipe.height - pipe.gap);
+                
+                // Удаление труб за пределами экрана
+                if (pipe.x + pipe.width < 0) {
+                    pipes.splice(i, 1);
+                }
+            }
+            
+            // Отрисовка птицы
+            ctx.fillStyle = bird.color;
+            ctx.beginPath();
+            ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Отрисовка глаз
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(bird.x + 5, bird.y - 3, 4, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.arc(bird.x + 6, bird.y - 3, 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Отрисовка клюва
+            ctx.fillStyle = '#ffb74d';
+            ctx.beginPath();
+            ctx.moveTo(bird.x + 10, bird.y);
+            ctx.lineTo(bird.x + 20, bird.y - 3);
+            ctx.lineTo(bird.x + 20, bird.y + 3);
+            ctx.closePath();
+            ctx.fill();
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Обновление счета
+        function updateScore() {
+            scoreDisplay.textContent = `${score} ОЧКОВ`;
+        }
+
+        // Победа в игре
+        function winGame() {
+            gameRunning = false;
+            
+            // Анимация птички в сердечко
+            const heart = document.getElementById('heart');
+            const rect = heart.getBoundingClientRect();
+            const heartX = rect.left + rect.width/2;
+            const heartY = rect.top + rect.height/2;
+            
+            const birdRect = canvas.getBoundingClientRect();
+            const birdX = birdRect.left + bird.x;
+            const birdY = birdRect.top + bird.y;
+            
+            // Расчет смещения
+            const offsetX = heartX - birdX;
+            const offsetY = heartY - birdY;
+            
+            // Показываем сердечко
+            heart.style.opacity = '1';
+            heart.style.transform = 'scale(1)';
+            
+            // Создаем летящую птичку
+            flyingBirdElement = document.createElement('div');
+            flyingBirdElement.style.position = 'fixed';
+            flyingBirdElement.style.left = `${birdX}px`;
+            flyingBirdElement.style.top = `${birdY}px`;
+            flyingBirdElement.style.width = `${bird.radius * 4}px`;
+            flyingBirdElement.style.height = `${bird.radius * 4}px`;
+            flyingBirdElement.style.background = 'radial-gradient(circle, #fff9c4 60%, #fff176 100%)';
+            flyingBirdElement.style.borderRadius = '50%';
+            flyingBirdElement.style.zIndex = '15';
+            flyingBirdElement.style.transition = 'all 1.5s ease-in-out';
+            document.body.appendChild(flyingBirdElement);
+            
+            // Анимация полета к сердцу
+            setTimeout(() => {
+                flyingBirdElement.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(0.2)`;
+                flyingBirdElement.style.opacity = '0.5';
+            }, 10);
+            
+            // Удаление птички и переход к следующему экрану
+            setTimeout(() => {
+                if (flyingBirdElement) {
+                    document.body.removeChild(flyingBirdElement);
+                    flyingBirdElement = null;
+                }
+                heart.style.transform = 'scale(1.5)';
+                heart.style.opacity = '0.8';
+                
+                // Переход на экран 3
+                setTimeout(() => {
+                    showScreen(2);
+                }, 1000);
+            }, 1500);
+        }
+
+        // Фейерверк при нажатии на кнопку "Да!"
+        document.getElementById('yesBtn').addEventListener('click', function() {
+            createFireworks();
+            this.textContent = "УРАА! ❤️";
+            this.style.background = '#f48fb1';
+            this.style.transform = 'scale(1.1)';
+            
+            // Запускаем салют несколько раз
+            setTimeout(createFireworks, 500);
+            setTimeout(createFireworks, 1000);
+            setTimeout(createFireworks, 1500);
+            setTimeout(createFireworks, 2000);
+        });
+
+        // Создание фейерверка
+        function createFireworks() {
+            const colors = ['#f48fb1', '#ce93d8', '#80deea', '#c5e1a5', '#ffcc80', '#ef9a9a'];
+            
+            for (let i = 0; i < 60; i++) {
+                createParticle();
+            }
+            
+            function createParticle() {
+                const container = document.querySelector('.container');
+                const particle = document.createElement('div');
+                particle.classList.add(Math.random() > 0.5 ? 'firework' : 'heart-particle');
+                
+                if (particle.classList.contains('heart-particle')) {
+                    particle.innerHTML = '❤️';
+                    particle.style.fontSize = `${Math.random() * 2 + 1}rem`;
+                } else {
+                    particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    particle.style.width = `${Math.random() * 5 + 2}px`;
+                    particle.style.height = particle.style.width;
+                }
+                
+                const startX = Math.random() * window.innerWidth;
+                const startY = Math.random() * window.innerHeight;
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = 1.5 + Math.random() * 2;
+                const size = 0.5 + Math.random();
+                const life = 1500 + Math.random() * 1000;
+                
+                particle.style.left = `${startX}px`;
+                particle.style.top = `${startY}px`;
+                container.appendChild(particle);
+                
+                // Анимация
+                const startTime = Date.now();
+                
+                function animate() {
+                    const elapsed = Date.now() - startTime;
+                    const progress = elapsed / life;
+                    
+                    if (progress >= 1) {
+                        container.removeChild(particle);
+                        return;
+                    }
+                    
+                    const x = startX + Math.cos(angle) * velocity * elapsed * 0.1;
+                    const y = startY + Math.sin(angle) * velocity * elapsed * 0.1 - 0.5 * 0.001 * elapsed * elapsed;
+                    
+                    particle.style.left = `${x}px`;
+                    particle.style.top = `${y}px`;
+                    particle.style.opacity = 1 - progress;
+                    
+                    requestAnimationFrame(animate);
+                }
+                
+                animate();
+            }
+        }
+
+        // Инициализация
+        window.addEventListener('load', () => {
+            resizeCanvas();
+        });
+    </script>
+</body>
+</html>
